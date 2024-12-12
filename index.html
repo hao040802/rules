@@ -17,6 +17,24 @@
             background-image: url('https://cdn.pixabay.com/photo/2017/11/07/21/55/snow-2921667_960_720.jpg');
             background-size: cover;
             overflow: hidden;
+            border: 5px solid transparent;
+            border-radius: 20px;
+            animation: borderTwinkle 3s infinite alternate;
+        }
+
+        @keyframes borderTwinkle {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 165, 0, 0.7), 
+                            0 0 30px rgba(255, 255, 0, 0.7), 0 0 40px rgba(0, 255, 0, 0.7),
+                            0 0 50px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 0, 255, 0.7), 
+                            0 0 70px rgba(139, 0, 255, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(255, 165, 0, 0.7), 0 0 25px rgba(255, 255, 0, 0.7), 
+                            0 0 35px rgba(0, 255, 0, 0.7), 0 0 45px rgba(0, 255, 255, 0.7),
+                            0 0 55px rgba(0, 0, 255, 0.7), 0 0 65px rgba(139, 0, 255, 0.7), 
+                            0 0 75px rgba(255, 0, 0, 0.7);
+            }
         }
 
         header {
@@ -49,21 +67,6 @@
             justify-content: center;
             border: 2px solid #FF4747;
             animation: borderTwinkle 3s infinite alternate;
-        }
-
-        @keyframes borderTwinkle {
-            0%, 100% {
-                box-shadow: 0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 165, 0, 0.7), 
-                            0 0 30px rgba(255, 255, 0, 0.7), 0 0 40px rgba(0, 255, 0, 0.7),
-                            0 0 50px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 0, 255, 0.7), 
-                            0 0 70px rgba(139, 0, 255, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 15px rgba(255, 165, 0, 0.7), 0 0 25px rgba(255, 255, 0, 0.7), 
-                            0 0 35px rgba(0, 255, 0, 0.7), 0 0 45px rgba(0, 255, 255, 0.7),
-                            0 0 55px rgba(0, 0, 255, 0.7), 0 0 65px rgba(139, 0, 255, 0.7), 
-                            0 0 75px rgba(255, 0, 0, 0.7);
-            }
         }
 
         #control-panel h3 {
@@ -176,7 +179,7 @@
     </style>
 </head>
 <body>
-    <header>Hệ thống quản lý điểm dừng - Chúc mừng Giáng Sinh</header>
+    <header>Hệ thống quản lý điểm dừng - Chào Giáng Sinh</header>
     <div class="container">
         <div id="control-panel">
             <h3 class="twinkle">Điều khiển</h3>
@@ -190,7 +193,7 @@
         <div id="map"></div>
     </div>
     <footer>
-        Được thiết kế bởi <a href="#">Em iu</a> | 2024 | <span>&#x1F384;</span>
+        Được thiết kế bởi <a href="#">Nhóm Phát Triển</a> | 2024 | <span>&#x1F384;</span>
     </footer>
     <script>
         var map = L.map('map', {
@@ -216,4 +219,8 @@
         document.getElementById('modeSelector').onchange = function() {
             mode = this.value;
             selectedStops = [];
-            alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "
+            alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "Chọn 1 điểm" : "Chọn nhiều điểm"));
+        };
+    </script>
+</body>
+</html>
