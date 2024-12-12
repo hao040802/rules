@@ -16,6 +16,7 @@
             height: 100vh;
             background-image: url('https://cdn.pixabay.com/photo/2017/11/07/21/55/snow-2921667_960_720.jpg');
             background-size: cover;
+            overflow: hidden;
         }
 
         header {
@@ -121,13 +122,48 @@
         .leaflet-container {
             border: 3px solid #FFAB61;
         }
+
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            animation: fall 10s linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) translateX(0);
+            }
+            100% {
+                transform: translateY(100vh) translateX(calc(-50vw + 100px));
+            }
+        }
+
+        .twinkle {
+            animation: twinkle 2s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
     </style>
 </head>
 <body>
-    <header>Hệ thống quản lý điểm dừng - Chào Giáng Sinh</header>
+    <header>Hệ thống quản lý xe - Chúc mừng giáng sinh</header>
     <div class="container">
         <div id="control-panel">
-            <h3>Điều khiển</h3>
+            <h3 class="twinkle">Điều khiển</h3>
             <label for="modeSelector">Chọn chế độ:</label>
             <select id="modeSelector">
                 <option value="single">Chọn 1 điểm</option>
@@ -138,7 +174,7 @@
         <div id="map"></div>
     </div>
     <footer>
-        Được thiết kế bởi <a href="#">Nhóm Phát Triển</a> | 2024 | <span>&#x1F384;</span>
+        Được thiết kế bởi <a href="#">Em iu</a> | 2024 | <span>&#x1F384;</span>
     </footer>
     <script>
         var map = L.map('map', {
@@ -224,6 +260,19 @@
         addMarker(10.730768, 106.698714, "F");
         addMarker(10.731970, 106.699623, "G");
         addMarker(10.730805, 106.699786, "H");
+
+        function createSnowflakes() {
+            for (let i = 0; i < 100; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.style.left = Math.random() * 100 + 'vw';
+                snowflake.style.animationDuration = 5 + Math.random() * 5 + 's';
+                snowflake.style.animationDelay = Math.random() * 5 + 's';
+                document.body.appendChild(snowflake);
+            }
+        }
+
+        createSnowflakes();
     </script>
 </body>
 </html>
