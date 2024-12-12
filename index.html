@@ -48,6 +48,22 @@
             flex-direction: column;
             justify-content: center;
             border: 2px solid #FF4747;
+            animation: borderTwinkle 3s infinite alternate;
+        }
+
+        @keyframes borderTwinkle {
+            0%, 100% {
+                box-shadow: 0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 165, 0, 0.7), 
+                            0 0 30px rgba(255, 255, 0, 0.7), 0 0 40px rgba(0, 255, 0, 0.7),
+                            0 0 50px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 0, 255, 0.7), 
+                            0 0 70px rgba(139, 0, 255, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 15px rgba(255, 165, 0, 0.7), 0 0 25px rgba(255, 255, 0, 0.7), 
+                            0 0 35px rgba(0, 255, 0, 0.7), 0 0 45px rgba(0, 255, 255, 0.7),
+                            0 0 55px rgba(0, 0, 255, 0.7), 0 0 65px rgba(139, 0, 255, 0.7), 
+                            0 0 75px rgba(255, 0, 0, 0.7);
+            }
         }
 
         #control-panel h3 {
@@ -160,7 +176,7 @@
     </style>
 </head>
 <body>
-    <header>Hệ thống quản lý xe - Chúc mừng giáng sinh</header>
+    <header>Hệ thống quản lý điểm dừng - Chúc mừng Giáng Sinh</header>
     <div class="container">
         <div id="control-panel">
             <h3 class="twinkle">Điều khiển</h3>
@@ -200,79 +216,4 @@
         document.getElementById('modeSelector').onchange = function() {
             mode = this.value;
             selectedStops = [];
-            alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "Chọn 1 điểm" : "Chọn nhiều điểm"));
-        };
-
-        document.getElementById('startButton').onclick = function() {
-            if (selectedStops.length > 0) {
-                if (mode === 'multiple') {
-                    sendSelectedStops();
-                } else if (mode === 'single' && selectedStops.length === 1) {
-                    sendStopInfo(selectedStops[0]);
-                }
-            } else {
-                alert("Vui lòng chọn ít nhất một điểm dừng");
-            }
-        };
-
-        function addMarker(lat, lng, name) {
-            var marker = L.marker([lat, lng]).addTo(map);
-            marker.bindPopup("<b>" + name + "</b><br>Nhấn để chọn");
-            marker.on('click', function() {
-                if (mode === 'single') {
-                    selectedStops = [name];
-                    alert("Điểm dừng " + name + " đã được chọn");
-                } else if (mode === 'multiple') {
-                    var index = selectedStops.indexOf(name);
-                    if (index === -1) {
-                        selectedStops.push(name);
-                        alert("Điểm dừng " + name + " đã được chọn");
-                    } else {
-                        selectedStops.splice(index, 1);
-                        alert("Điểm dừng " + name + " đã bị loại bỏ");
-                    }
-                }
-            });
-        }
-
-        function sendStopInfo(stopName) {
-            fetch(`http://192.168.1.6/select-stop?name=${stopName}`)
-                .then(response => response.text())
-                .then(data => console.log(`Sent stop: ${stopName}`))
-                .catch(error => console.error('Error:', error));
-        }
-
-        function sendSelectedStops() {
-            fetch(`http://192.168.1.6/select-stops?names=${encodeURIComponent(selectedStops.join(','))}`)
-                .then(response => response.text())
-                .then(data => {
-                    console.log("Sent selected stops: " + selectedStops.join(', '));
-                    selectedStops = [];
-                })
-                .catch(error => console.error('Error:', error));
-        }
-
-        addMarker(10.731731, 106.698619, "A");
-        addMarker(10.732349, 106.698599, "B");
-        addMarker(10.731375, 106.698652, "C");
-        addMarker(10.732811, 106.698607, "D");
-        addMarker(10.732866, 106.699545, "E");
-        addMarker(10.730768, 106.698714, "F");
-        addMarker(10.731970, 106.699623, "G");
-        addMarker(10.730805, 106.699786, "H");
-
-        function createSnowflakes() {
-            for (let i = 0; i < 100; i++) {
-                const snowflake = document.createElement('div');
-                snowflake.className = 'snowflake';
-                snowflake.style.left = Math.random() * 100 + 'vw';
-                snowflake.style.animationDuration = 5 + Math.random() * 5 + 's';
-                snowflake.style.animationDelay = Math.random() * 5 + 's';
-                document.body.appendChild(snowflake);
-            }
-        }
-
-        createSnowflakes();
-    </script>
-</body>
-</html>
+            alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "
