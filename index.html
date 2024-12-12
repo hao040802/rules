@@ -193,14 +193,14 @@
         }
 
         function sendStopInfo(stopName) {
-            fetch(`http://192.168.4.1/select-stop?name=${stopName}`)
+            fetch(`http://192.168.1.1/select-stop?name=${stopName}`)
                 .then(response => response.text())
                 .then(data => console.log(`Sent stop: ${stopName}`))
                 .catch(error => console.error('Error:', error));
         }
 
         function sendSelectedStops() {
-            fetch(`http://192.168.4.1/select-stops?names=${encodeURIComponent(selectedStops.join(','))}`)
+            fetch(`http://192.168.1.1/select-stops?names=${encodeURIComponent(selectedStops.join(','))}`)
                 .then(response => response.text())
                 .then(data => {
                     console.log("Sent selected stops: " + selectedStops.join(', '));
