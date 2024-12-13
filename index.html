@@ -17,23 +17,17 @@
             background-image: url('https://cdn.pixabay.com/photo/2017/11/07/21/55/snow-2921667_960_720.jpg');
             background-size: cover;
             overflow: hidden;
-            border: 5px solid transparent;
-            border-radius: 20px;
-            animation: borderTwinkle 3s infinite alternate;
+            border: 10px solid;
+            border-image: linear-gradient(90deg, #FF4747, #FFAB61, #47FFAB, #4747FF, #AB47FF) 10;
+            animation: borderTwinkle 5s infinite alternate;
         }
 
         @keyframes borderTwinkle {
             0%, 100% {
-                box-shadow: 0 0 10px rgba(255, 0, 0, 0.7), 0 0 20px rgba(255, 165, 0, 0.7), 
-                            0 0 30px rgba(255, 255, 0, 0.7), 0 0 40px rgba(0, 255, 0, 0.7),
-                            0 0 50px rgba(0, 255, 255, 0.7), 0 0 60px rgba(0, 0, 255, 0.7), 
-                            0 0 70px rgba(139, 0, 255, 0.7);
+                border-image-slice: 10 fill;
             }
             50% {
-                box-shadow: 0 0 15px rgba(255, 165, 0, 0.7), 0 0 25px rgba(255, 255, 0, 0.7), 
-                            0 0 35px rgba(0, 255, 0, 0.7), 0 0 45px rgba(0, 255, 255, 0.7),
-                            0 0 55px rgba(0, 0, 255, 0.7), 0 0 65px rgba(139, 0, 255, 0.7), 
-                            0 0 75px rgba(255, 0, 0, 0.7);
+                border-image-slice: 8 fill;
             }
         }
 
@@ -213,6 +207,16 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
+        var predefinedStops = [
+            { lat: 10.732, lng: 106.698, name: "Điểm A" },
+            { lat: 10.7315, lng: 106.699, name: "Điểm B" },
+            { lat: 10.7308, lng: 106.6978, name: "Điểm C" }
+        ];
+
+        predefinedStops.forEach(function(stop) {
+            L.marker([stop.lat, stop.lng]).addTo(map).bindPopup(stop.name).openPopup();
+        });
+
         var selectedStops = [];
         var mode = 'single';
 
@@ -220,6 +224,24 @@
             mode = this.value;
             selectedStops = [];
             alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "Chọn 1 điểm" : "Chọn nhiều điểm"));
+        };
+
+        map.on('click', function(e) {
+            if (mode === 'single') {
+                selectedStops = [e.latlng];
+                alert('Điểm được chọn: ' + JSON.stringify(e.latlng));
+            } else {
+                selectedStops.push(e.latlng);
+                alert('Đã thêm điểm: ' + JSON.stringify(e.latlng));
+            }
+        });
+
+        document.getElementById('startButton').onclick = function() {
+            if (selectedStops.length === 0) {
+                alert('Vui lòng chọn ít nhất 1 điểm dừng!');
+            } else {
+                alert('Các điểm dừng đã chọn: ' + JSON.stringify(selectedStops));
+            }
         };
     </script>
 </body>
