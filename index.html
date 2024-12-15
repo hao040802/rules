@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống quản lý điểm dừng - Giáng Sinh</title>
+    <title>Hệ thống quản lý điểm dừng</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <style>
         body {
             margin: 0;
             font-family: 'Roboto', Arial, sans-serif;
-            background-color: #f9f9f9;
-            overflow: hidden;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         header {
-            background: linear-gradient(90deg, #FF4C4C, #008000);
+            background: linear-gradient(90deg, #007BFF, #0056b3);
             color: white;
             text-align: center;
-            padding: 20px;
-            font-size: 26px;
+            padding: 15px 10px;
+            font-size: 24px;
             font-weight: bold;
-            text-transform: uppercase;
             letter-spacing: 1px;
+            text-transform: uppercase;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            border-bottom: 5px solid #FFD700;
         }
 
         .container {
@@ -32,14 +33,14 @@
             grid-template-columns: 1fr 3fr;
             gap: 20px;
             padding: 20px;
-            height: calc(100vh - 100px);
+            flex: 1;
         }
 
         #control-panel {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: #ffffff;
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -48,8 +49,13 @@
         #control-panel h3 {
             margin: 0 0 20px;
             text-align: center;
-            color: #FF4C4C;
+            color: #007BFF;
             font-weight: bold;
+        }
+
+        #control-panel label {
+            font-size: 14px;
+            color: #555;
         }
 
         #control-panel select,
@@ -64,11 +70,11 @@
         }
 
         #control-panel select {
-            background-color: #FFFACD;
+            background-color: #f9f9f9;
         }
 
         #control-panel button {
-            background-color: #FF4C4C;
+            background-color: #007BFF;
             color: white;
             border: none;
             cursor: pointer;
@@ -76,52 +82,46 @@
         }
 
         #control-panel button:hover {
-            background-color: #008000;
+            background-color: #0056b3;
             transform: translateY(-2px);
+        }
+
+        #control-panel button:active {
+            transform: translateY(0);
         }
 
         #map {
             width: 100%;
             height: 100%;
             border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         footer {
             text-align: center;
-            background-color: #FF4C4C;
+            background-color: #007BFF;
             color: white;
             padding: 10px;
             font-size: 14px;
-            border-top: 5px solid #FFD700;
+            margin-top: auto;
         }
 
-        .snowflake {
-            position: fixed;
-            top: -10px;
-            left: 50%;
-            font-size: 10px;
-            color: white;
-            opacity: 0.8;
-            animation: fall linear infinite;
-            z-index: 9999;
+        footer a {
+            color: #ffcc00;
+            text-decoration: none;
         }
 
-        @keyframes fall {
-            0% {
-                transform: translateX(0) translateY(0) rotate(0deg);
-            }
-            100% {
-                transform: translateX(-100px) translateY(100vh) rotate(360deg);
-            }
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <header>Hệ thống quản lý điểm dừng - Giáng Sinh</header>
+    <header>Hệ thống quản lý điểm dừng</header>
     <div class="container">
         <div id="control-panel">
             <h3>Điều khiển</h3>
+            <label for="modeSelector">Chọn chế độ:</label>
             <select id="modeSelector">
                 <option value="single">Chọn 1 điểm</option>
                 <option value="multiple">Chọn nhiều điểm</option>
@@ -130,10 +130,10 @@
         </div>
         <div id="map"></div>
     </div>
-    <footer>Được thiết kế bởi <a href="#">Nhóm Phát Triển</a> | 2024</footer>
-
+    <footer>
+        Được thiết kế bởi <a href="#">Nhóm Phát Triển</a> | 2024
+    </footer>
     <script>
-        // Map initialization
         var map = L.map('map', {
             center: [10.731804, 106.698352],
             zoom: 18.4,
@@ -151,36 +151,16 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Snowflake generator
-        function createSnowflake() {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.textContent = '❄';
-            snowflake.style.left = Math.random() * window.innerWidth + 'px';
-            snowflake.style.fontSize = Math.random() * 20 + 10 + 'px';
-            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-            snowflake.style.animationDelay = Math.random() * 2 + 's';
-            document.body.appendChild(snowflake);
+        var selectedStops = [];
+        var mode = 'single';
 
-            setTimeout(() => {
-                snowflake.remove();
-            }, 5000); // Remove after animation
-        }
-
-        // Generate multiple snowflakes
-        setInterval(createSnowflake, 200);
-
-        // Logic for the map and control panel
-        let selectedStops = [];
-        let mode = 'single';
-
-        document.getElementById('modeSelector').onchange = function () {
+        document.getElementById('modeSelector').onchange = function() {
             mode = this.value;
             selectedStops = [];
             alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "Chọn 1 điểm" : "Chọn nhiều điểm"));
         };
 
-        document.getElementById('startButton').onclick = function () {
+        document.getElementById('startButton').onclick = function() {
             if (selectedStops.length > 0) {
                 if (mode === 'multiple') {
                     sendSelectedStops();
@@ -193,14 +173,14 @@
         };
 
         function addMarker(lat, lng, name) {
-            const marker = L.marker([lat, lng]).addTo(map);
+            var marker = L.marker([lat, lng]).addTo(map);
             marker.bindPopup("<b>" + name + "</b><br>Nhấn để chọn");
-            marker.on('click', function () {
+            marker.on('click', function() {
                 if (mode === 'single') {
                     selectedStops = [name];
                     alert("Điểm dừng " + name + " đã được chọn");
                 } else if (mode === 'multiple') {
-                    const index = selectedStops.indexOf(name);
+                    var index = selectedStops.indexOf(name);
                     if (index === -1) {
                         selectedStops.push(name);
                         alert("Điểm dừng " + name + " đã được chọn");
@@ -213,14 +193,14 @@
         }
 
         function sendStopInfo(stopName) {
-            fetch(`http://192.168.1.150/select-stop?name=${stopName}`)
+            fetch(http://192.168.1.150/select-stop?name=${stopName})
                 .then(response => response.text())
-                .then(data => console.log(`Sent stop: ${stopName}`))
+                .then(data => console.log(Sent stop: ${stopName}))
                 .catch(error => console.error('Error:', error));
         }
 
         function sendSelectedStops() {
-            fetch(`http://192.168.1.150/select-stops?names=${encodeURIComponent(selectedStops.join(','))}`)
+            fetch(http://192.168.1.150/select-stops?names=${encodeURIComponent(selectedStops.join(','))})
                 .then(response => response.text())
                 .then(data => {
                     console.log("Sent selected stops: " + selectedStops.join(', '));
