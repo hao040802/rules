@@ -171,7 +171,15 @@
                 alert("Vui lòng chọn ít nhất một điểm dừng");
             }
         };
-
+        function updatePosition(lat, lng) {
+            if (lat && lng) {
+                var marker = L.marker([lat, lng]).addTo(map);
+                marker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
+                map.setView([lat, lng], 18.4);  // Cập nhật vị trí và zoom vào đó
+            } else {
+                console.error('Invalid latitude or longitude');
+            }
+        }
         function addMarker(lat, lng, name) {
             var marker = L.marker([lat, lng]).addTo(map);
             marker.bindPopup("<b>" + name + "</b><br>Nhấn để chọn");
@@ -191,7 +199,16 @@
                 }
             });
         }
-
+        function getCurrentLocation() {
+            fetch('http://192.168.1.25/get-location')
+                .then(response => response.json())
+                .then(data => {
+                    var lat = data.latitude;
+                    var lng = data.longitude;
+                    updatePosition(lat, lng);
+                })
+                .catch(error => console.error('Error fetching location:', error));
+        }
         function sendStopInfo(stopName) {
 fetch(`http://192.168.1.25/select-stop?name=${stopName}`)
                 .then(response => response.text())
@@ -217,6 +234,7 @@ fetch(`http://192.168.1.25/select-stops?names=${encodeURIComponent(selectedStops
         addMarker(10.730768, 106.698714, "F");
         addMarker(10.731970, 106.699623, "G");
         addMarker(10.730805, 106.699786, "H");
+        setInterval(getCurrentLocation, 1000);  // Cập nhật vị trí mỗi 5 giây
     </script>
 </body>
 </html>
