@@ -171,10 +171,10 @@
                 alert("Vui lòng chọn ít nhất một điểm dừng");
             }
         };
-        function updatePosition(lat, lng) {
+        function updatePosition(currentLat, currentLng) {
             if (lat && lng) {
                 var marker = L.marker([lat, lng]).addTo(map);
-                marker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
+                marker.bindPopup("<b>Current Location</b><br>Latitude: " + currentLat + "<br>Longitude: " + currentLng);
             } else {
                 console.error('Invalid latitude or longitude');
             }
