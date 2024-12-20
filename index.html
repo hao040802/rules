@@ -171,21 +171,24 @@
                 alert("Vui lòng chọn ít nhất một điểm dừng");
             }
         };
-        function updatePosition(lat, lng) {
+       var currentMarker;
+
+function updatePosition(lat, lng) {
     if (lat && lng) {
-        // Nếu marker đã tồn tại, cập nhật vị trí, nếu không thì tạo mới
+        // Xóa marker cũ nếu đã tồn tại
         if (currentMarker) {
-            currentMarker.setLatLng([lat, lng]);
-            currentMarker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
-        } else {
-            currentMarker = L.marker([lat, lng]).addTo(map);
-            currentMarker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
+            map.removeLayer(currentMarker);
         }
+        
+        // Thêm marker mới
+        currentMarker = L.marker([lat, lng]).addTo(map);
+        currentMarker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
         map.setView([lat, lng], 18.4);  // Cập nhật vị trí và zoom vào đó
     } else {
         console.error('Invalid latitude or longitude');
     }
 }
+
 
         function addMarker(lat, lng, name) {
             var marker = L.marker([lat, lng]).addTo(map);
