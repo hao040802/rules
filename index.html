@@ -175,7 +175,6 @@
             if (lat && lng) {
                 var marker = L.marker([lat, lng]).addTo(map);
                 marker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
-                map.setView([lat, lng], 18.4);  // Cập nhật vị trí và zoom vào đó
             } else {
                 console.error('Invalid latitude or longitude');
             }
@@ -203,9 +202,9 @@
             fetch('http://192.168.1.12/get-location')
                 .then(response => response.json())
                 .then(data => {
-                    var lat = data.latitude;
-                    var lng = data.longitude;
-                    updatePosition(lat, lng);
+                    var currentLat = data.latitude;
+                    var currentLng = data.longitude;
+                    updatePosition(currentLat, currentLng);
                 })
                 .catch(error => console.error('Error fetching location:', error));
         }
