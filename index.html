@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống quản lý điểm dừng</title>
+    <title>Hệ thống quản lý</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -29,21 +30,18 @@
         }
 
         .container {
-            display: grid;
-            grid-template-columns: 1fr 3fr;
+            display: flex;
+            flex-direction: row;
             gap: 20px;
             padding: 20px;
             flex: 1;
         }
 
         #control-panel {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: 20px;
+            width: 30%;
         }
 
         #control-panel h3 {
@@ -58,8 +56,24 @@
             color: #555;
         }
 
-        #control-panel select,
-        #control-panel button {
+        #auto-panel, #manual-panel {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #auto-panel h3, #manual-panel h3 {
+            margin: 0 0 20px;
+            text-align: center;
+            color: #007BFF;
+            font-weight: bold;
+        }
+
+        #auto-panel select, #manual-panel button {
             width: 100%;
             padding: 12px;
             margin: 15px 0;
@@ -69,11 +83,11 @@
             outline: none;
         }
 
-        #control-panel select {
+        #auto-panel select {
             background-color: #f9f9f9;
         }
 
-        #control-panel button {
+        #manual-panel button, #auto-panel button {
             background-color: #007BFF;
             color: white;
             border: none;
@@ -81,17 +95,28 @@
             transition: background-color 0.3s, transform 0.2s;
         }
 
-        #control-panel button:hover {
+        #manual-panel button:hover, #auto-panel button:hover {
             background-color: #0056b3;
             transform: translateY(-2px);
         }
 
-        #control-panel button:active {
+        #manual-panel button:active, #auto-panel button:active {
             transform: translateY(0);
         }
 
+        #manual-panel .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        #manual-panel .control-buttons button {
+            flex: 1 1 48%;
+            margin: 10px 0;
+        }
+
         #map {
-            width: 100%;
+            width: 70%;
             height: 100%;
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -114,32 +139,96 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .mode-selector input {
+            margin: 0 10px;
+        }
+
+        .mode-selector label {
+            font-size: 16px;
+            color: #007BFF;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <header>Hệ thống quản lý điểm dừng</header>
+    <header>Hệ thống quản lý</header>
     <div class="container">
         <div id="control-panel">
-            <h3>Điều khiển</h3>
-            <label for="modeSelector">Chọn chế độ:</label>
-            <select id="modeSelector">
-                <option value="single">Chọn 1 điểm</option>
-                <option value="multiple">Chọn nhiều điểm</option>
-            </select>
-            <button id="startButton">Bắt đầu</button>
+            <div class="mode-selector">
+                <input type="radio" id="autoMode" name="mode" value="auto" checked>
+                <label for="autoMode">Auto</label>
+                <input type="radio" id="manualMode" name="mode" value="manual">
+                <label for="manualMode">Manual</label>
+            </div>
+            <div id="auto-panel">
+                <h3>Chế độ tự động</h3>
+                <label for="modeSelector">Chọn chế độ:</label>
+                <select id="modeSelector">
+                    <option value="single">Chọn 1 điểm</option>
+                    <option value="multiple">Chọn nhiều điểm</option>
+                </select>
+                <button id="startButton">Bắt đầu</button>
+            </div>
+            <div id="manual-panel" style="display: none;">
+                <h3>Chế độ thủ công</h3>
+                <div class="control-buttons">
+                    <button id="forwardButton">Tiến</button>
+                    <button id="stopButton">Dừng</button>
+                    <button id="leftButton">Trái</button>
+                    <button id="rightButton">Phải</button>
+                    <button id="turnLeftButton">Rẽ Trái</button>
+                    <button id="turnRightButton">Rẽ Phải</button>
+                </div>
+            </div>
         </div>
         <div id="map"></div>
     </div>
     <footer>
-        Được thiết kế bởi <a href="#">Nhóm Phát Triển</a> | 2024
+        Được thiết kế bởi <a href="#">Keep The Blue Flag Fly High</a> | 2024
     </footer>
     <script>
+        const client = mqtt.connect("wss://48296e48195e4fc1a1f0bc944943df86.s1.eu.hivemq.cloud:8884/mqtt", {
+            username: "hivemq.webclient.1734758385824",
+            password: "!K6Y8tMm3:PBwxn7>gW@",
+        });
+
+        var currentMarker;
+        var selectedStops = [];
+        var mode = 'single';
+        //các dòng thonng6 báo
+        client.on("connect", () => {
+            console.log("Đã kết nối đến MQTT Broker");
+            client.subscribe("esp32/gps"); // Đăng ký nhận dữ liệu vị trí GPS
+        });
+        client.on("message", (topic, message) => {
+            console.log(`Chủ đề: ${topic}, Tin nhắn: ${message.toString()}`);
+            const data = JSON.parse(message.toString());
+            if (data.latitude && data.longitude) {
+                updatePosition(data.latitude, data.longitude);
+            } else {
+                console.error('Dữ liệu GPS không hợp lệ');
+            }
+        });
+        client.on("error", (error) => {
+            console.error("Lỗi kết nối:", error);
+        });
+        client.on("close", () => {
+            console.log("Mất kết nối đến MQTT Broker");
+        });
+        //Khai báo biến map, xác định giới hạn map, tỉ lệ zoom
         var map = L.map('map', {
-            center: [10.731804, 106.698352],
+            center: [10.452471, 106.458189],
             zoom: 18.4,
             maxBounds: L.latLngBounds(
-                L.latLng(10.730241, 106.697202),
-                L.latLng(10.733403, 106.699948)
+                L.latLng(10.454215, 106.458843),
+                L.latLng(10.450865, 106.458497)
             ),
             maxZoom: 18.4,
             minZoom: 18.4,
@@ -150,16 +239,12 @@
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
-
-        var selectedStops = [];
-        var mode = 'single';
-
+        // Lựa chọn chế độ        
         document.getElementById('modeSelector').onchange = function() {
             mode = this.value;
             selectedStops = [];
             alert("Đã chuyển sang chế độ: " + (mode === 'single' ? "Chọn 1 điểm" : "Chọn nhiều điểm"));
         };
-
         document.getElementById('startButton').onclick = function() {
             if (selectedStops.length > 0) {
                 if (mode === 'multiple') {
@@ -171,25 +256,44 @@
                 alert("Vui lòng chọn ít nhất một điểm dừng");
             }
         };
-       var currentMarker;
+        //Thêm các nút nhấn điều khiển
+        document.getElementById('forwardButton').onclick = function() {
+            controlVehicle("forward");
+        };
 
-function updatePosition(lat, lng) {
-    if (lat && lng) {
-        // Xóa marker cũ nếu đã tồn tại
-        if (currentMarker) {
-            map.removeLayer(currentMarker);
+        document.getElementById('stopButton').onclick = function() {
+            controlVehicle("stop");
+        };
+
+        document.getElementById('leftButton').onclick = function() {
+            controlVehicle("left");
+        };
+
+        document.getElementById('rightButton').onclick = function() {
+            controlVehicle("right");
+        };
+
+        document.getElementById('turnLeftButton').onclick = function() {
+            controlVehicle("turnLeft");
+        };
+
+        document.getElementById('turnRightButton').onclick = function() {
+            controlVehicle("turnRight");
+        };
+        // Mã update vị trí hiện tại trên map
+        function updatePosition(lat, lng) {
+            if (lat && lng) {
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                }
+                currentMarker = L.marker([lat, lng]).addTo(map);
+                currentMarker.bindPopup("<b>Vị trí hiện tại</b><br>Vĩ độ: " + lat + "<br>Kinh độ: " + lng);
+                map.setView([lat, lng], 18.4);
+            } else {
+                console.error('Vĩ độ hoặc kinh độ không hợp lệ');
+            }
         }
-        
-        // Thêm marker mới
-        currentMarker = L.marker([lat, lng]).addTo(map);
-        currentMarker.bindPopup("<b>Current Location</b><br>Latitude: " + lat + "<br>Longitude: " + lng);
-        map.setView([lat, lng], 18.4);  // Cập nhật vị trí và zoom vào đó
-    } else {
-        console.error('Invalid latitude or longitude');
-    }
-}
-
-
+        // Mã đánh dấu các điểm dừng trên map
         function addMarker(lat, lng, name) {
             var marker = L.marker([lat, lng]).addTo(map);
             marker.bindPopup("<b>" + name + "</b><br>Nhấn để chọn");
@@ -209,42 +313,42 @@ function updatePosition(lat, lng) {
                 }
             });
         }
-        function getCurrentLocation() {
-            fetch('http://192.168.1.12/get-location')
-                .then(response => response.json())
-                .then(data => {
-                    var lat = data.latitude;
-                    var lng = data.longitude;
-                    updatePosition(lat, lng);
-                })
-                .catch(error => console.error('Error fetching location:', error));
-        }
+
         function sendStopInfo(stopName) {
-fetch(`http://192.168.1.12/select-stop?name=${stopName}`)
-                .then(response => response.text())
-                .then(data => console.log(`Sent stop: ${stopName}`))
-                .catch(error => console.error('Error:', error));
+            client.publish('bus/stops/single', JSON.stringify({stopName})); // Gửi dữ liệu điểm dừng đơn lẻ
         }
 
         function sendSelectedStops() {
-fetch(`http://192.168.1.12/select-stops?names=${encodeURIComponent(selectedStops.join(','))}`)
-                .then(response => response.text())
-                .then(data => {
-                    console.log("Sent selected stops: " + selectedStops.join(', '));
-                    selectedStops = [];
-                })
-                .catch(error => console.error('Error:', error));
+            client.publish('bus/stops/multiple', JSON.stringify({selectedStops})); // Gửi dữ liệu nhiều điểm dừng
+            selectedStops = [];
         }
 
+        function controlVehicle(command) {
+            client.publish('bus/control', command); // Gửi lệnh điều khiển phương tiện
+        }
+        
         addMarker(10.731731, 106.698619, "A");
         addMarker(10.732349, 106.698599, "B");
+        addMarker(10.731375, 106.698652, "C");
         addMarker(10.731375, 106.698652, "C");
         addMarker(10.732811, 106.698607, "D");
         addMarker(10.732866, 106.699545, "E");
         addMarker(10.730768, 106.698714, "F");
         addMarker(10.731970, 106.699623, "G");
         addMarker(10.730805, 106.699786, "H");
-        setInterval(getCurrentLocation, 1000);  // Cập nhật vị trí mỗi 5 giây
+
+        // Chuyển đổi giữa 2 chế độ Auto và Manual
+        document.getElementById('autoMode').onclick = function() {
+            document.getElementById('auto-panel').style.display = 'block'; 
+            document.getElementById('manual-panel').style.display = 'none'; 
+            client.publish('bus/mode', 'auto'); // Gửi chế độ "auto" về MQTT Broker
+        };
+
+        document.getElementById('manualMode').onclick = function() { 
+            document.getElementById('auto-panel').style.display = 'none'; 
+            document.getElementById('manual-panel').style.display = 'block'; 
+            client.publish('bus/mode', 'manual'); // Gửi chế độ "manual" về MQTT Broker
+        };
     </script>
 </body>
 </html>
