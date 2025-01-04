@@ -223,15 +223,16 @@
             console.log("Mất kết nối đến MQTT Broker");
         });
         //Khai báo biến map, xác định giới hạn map, tỉ lệ zoom
-        var map = L.map('map', {
-            center: [10.453784504811443, 106.45796822377476],
+       var map = L.map('map', {
+            center: [10.731804, 106.698352],
             zoom: 18.4,
             maxBounds: L.latLngBounds(
-                L.latLng(10.457253, 106.454735),
-                L.latLng(10.451753, 106.460330)
+                L.latLng(10.730241, 106.697202),
+                L.latLng(10.733403, 106.699948)
             ),
-            maxZoom: 16,
-            minZoom: 24,
+            maxZoom: 18.4,
+            minZoom: 18.4,
+            maxBoundsViscosity: 1.0,
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
