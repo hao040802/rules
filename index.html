@@ -224,15 +224,11 @@
         });
         //Khai báo biến map, xác định giới hạn map, tỉ lệ zoom
        var map = L.map('map', {
-            center: [10.731804, 106.698352],
-            zoom: 18.4,
+            center: [10.4539533167852, 106.45778583355846],
             maxBounds: L.latLngBounds(
-                L.latLng(10.730241, 106.697202),
-                L.latLng(10.733403, 106.699948)
+                L.latLng(10.456717600562481, 106.45798968144919),
+                L.latLng(10.450777525278012, 106.45845102141242)
             ),
-            maxZoom: 18.4,
-            minZoom: 18.4,
-            maxBoundsViscosity: 1.0,
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
