@@ -225,14 +225,13 @@
         //Khai báo biến map, xác định giới hạn map, tỉ lệ zoom
         var map = L.map('map', {
             center: [10.452471, 106.458189],
-            zoom: 20,
+            zoom: 16,
             maxBounds: L.latLngBounds(
-                L.latLng(10.457253, 106.460330),
-                L.latLng(10.451753, 106.454735)
+                L.latLng(10.457253, 106.454735),
+                L.latLng(10.451753, 106.460330)
             ),
             maxZoom: 16,
             minZoom: 24,
-            maxBoundsViscosity: 1.0
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
