@@ -286,7 +286,6 @@
                 }
                 currentMarker = L.marker([lat, lng]).addTo(map);
                 currentMarker.bindPopup("<b>Vị trí hiện tại</b><br>Vĩ độ: " + lat + "<br>Kinh độ: " + lng);
-                map.setView([lat, lng], 18.4);
             } else {
                 console.error('Vĩ độ hoặc kinh độ không hợp lệ');
             }
