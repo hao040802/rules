@@ -223,12 +223,16 @@
             console.log("Mất kết nối đến MQTT Broker");
         });
         //Khai báo biến map, xác định giới hạn map, tỉ lệ zoom
-       var map = L.map('map', {
-            center: [10.453953, 106.457785],
+        var map = L.map('map', {
+            center: [10.452544318303241, 106.45837428181026],
+            zoom: 18.4,
             maxBounds: L.latLngBounds(
-                L.latLng(10.450146, 106.456379),
-                L.latLng(10.456864, 106.460309)
+                L.latLng(10.45140868400123, 106.45701198396576),
+                L.latLng(10.45435422688917, 106.4588434174918)
             ),
+            maxZoom: 18.4,
+            minZoom: 18.4,
+            maxBoundsViscosity: 1.0
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -323,13 +327,14 @@
             client.publish('bus/control', command); // Gửi lệnh điều khiển phương tiện
         }
         
-        addMarker(10.452973, 106.458502, "A");
-        addMarker(10.452589, 106.458203, "B");
-        addMarker(10.452597, 106.458508, "C");
-        addMarker(10.452193, 106.458196, "D");
-        addMarker(10.452192, 106.458497, "E");
-        addMarker(10.452494, 106.457415, "F");
-        addMarker(10.452938, 106.457405, "G");
+        addMarker(10.731731, 106.698619, "A");
+        addMarker(10.732349, 106.698599, "B");
+        addMarker(10.731375, 106.698652, "C");
+        addMarker(10.731375, 106.698652, "C");
+        addMarker(10.732811, 106.698607, "D");
+        addMarker(10.732866, 106.699545, "E");
+        addMarker(10.730768, 106.698714, "F");
+        addMarker(10.731970, 106.699623, "G");
         addMarker(10.730805, 106.699786, "H");
 
         // Chuyển đổi giữa 2 chế độ Auto và Manual
